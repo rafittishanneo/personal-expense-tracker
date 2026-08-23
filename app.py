@@ -1,6 +1,6 @@
 import streamlit as st
 
-from styles import inject_custom_css
+from styles import inject_custom_css, render_theme_toggle
 
 from models.database import Database
 from controllers.transaction_controller import TransactionController
@@ -54,11 +54,15 @@ st.sidebar.markdown(
     """
     <div style="padding: 0.4rem 0 1rem 0;">
         <div style="font-size: 1.5rem;">💰</div>
-        <div style="font-size: 1.25rem; font-weight: 800;
-                    letter-spacing: -0.02em; margin-top: 0.2rem;">
+        <div style="font-size: 1.3rem; font-weight: 800;
+                    letter-spacing: -0.02em; margin-top: 0.2rem;
+                    background: var(--gradient-brand);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;">
             Expense Tracker
         </div>
-        <div style="font-size: 0.85rem; color: #6B7280;">
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
             Personal finance, simplified
         </div>
     </div>
@@ -67,6 +71,8 @@ st.sidebar.markdown(
 )
 
 st.sidebar.markdown("---")
+
+render_theme_toggle()
 
 page = st.sidebar.radio(
     "Navigation",
