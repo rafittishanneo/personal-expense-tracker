@@ -80,5 +80,7 @@ personal_expense_tracker/
 ├── data/
 │
 ├── requirements.txt
-├── README.md
+├── README.md 
 └── .gitignore
+
+to run this project uv run streamlit run app.py
