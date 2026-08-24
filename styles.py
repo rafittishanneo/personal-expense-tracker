@@ -295,25 +295,88 @@ def inject_custom_css():
 
         /* =====================================================
            INPUTS
+
+           BaseWeb (the component library behind Streamlit's
+           select/date/number/text widgets) styles itself with
+           Emotion (CSS-in-JS), computed once at server start from
+           .streamlit/config.toml's base="dark". That can inject
+           background/text color at any nesting depth inside the
+           widget, not just the outermost wrapper — so these rules
+           use descendant selectors (space-separated, not ">") to
+           reach every level, and set both background AND text
+           color explicitly, since a level that keeps its dark
+           background while another level's text goes light-mode
+           dark-on-dark (or light-on-light) is just as broken as
+           an unstyled background.
         ===================================================== */
 
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="input"] > div,
-        .stNumberInput > div > div,
-        .stDateInput > div > div {
-            background: var(--bg-input) !important;
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] *,
+        div[data-baseweb="input"],
+        div[data-baseweb="input"] *,
+        div[data-baseweb="base-input"],
+        div[data-baseweb="base-input"] *,
+        div[data-baseweb="datepicker"],
+        div[data-baseweb="datepicker"] *,
+        .stNumberInput, .stNumberInput *,
+        .stDateInput, .stDateInput *,
+        .stTextInput, .stTextInput *,
+        .stSelectbox, .stSelectbox * {
+            background-color: var(--bg-input) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+
+        /* the outer control shell keeps the rounded card look;
+           inner elements above intentionally stay transparent-ish
+           via the same var so no seams appear between nesting levels */
+        div[data-baseweb="select"] > div:first-child,
+        div[data-baseweb="input"] > div:first-child,
+        div[data-baseweb="base-input"] > div:first-child {
             border-radius: 12px !important;
             border: 1px solid var(--border) !important;
         }
 
-        /* dropdown / date popovers rendered in a floating layer */
+        /* placeholder text specifically (own pseudo-element, not
+           covered by the descendant rule above) */
+        div[data-baseweb="select"] input::placeholder,
+        div[data-baseweb="input"] input::placeholder,
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 1 !important;
+        }
+
+        /* svg icons inside selects (the chevron) inherit fill from
+           text color in some baseweb versions, currentColor in others */
+        div[data-baseweb="select"] svg {
+            fill: var(--text-secondary) !important;
+        }
+
+        /* dropdown / date popovers rendered in a floating portal
+           layer, appended outside the normal component tree —
+           these need their own rule regardless of nesting above */
+        ul[data-baseweb="menu"], ul[data-baseweb="menu"] *,
+        div[data-baseweb="popover"], div[data-baseweb="popover"] *,
+        div[data-baseweb="calendar"], div[data-baseweb="calendar"] * {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+        }
+
         ul[data-baseweb="menu"], div[data-baseweb="popover"] {
-            background: var(--bg-card) !important;
             border: 1px solid var(--border) !important;
             border-radius: 12px !important;
         }
 
-        li[role="option"] { color: var(--text-primary) !important; }
+        li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+            background-color: var(--accent-soft) !important;
+        }
+
+        /* calendar day cells - the selected/today state often carries
+           its own inline-computed color that needs an explicit pin */
+        div[data-baseweb="calendar"] [aria-selected="true"] {
+            background-color: var(--accent) !important;
+            color: #FFFFFF !important;
+        }
 
         /* =====================================================
            STATUS PILLS
